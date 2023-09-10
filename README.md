@@ -11,9 +11,15 @@
 
 2. 	Table goaldata
 	-	Each Record consists of:
+
 		a. Goal Type (Academic, Sports, Self Oriented, Work/Skill Oriented, Others)
+
 		b. Tier (1 - Easy, 2 - Moderate, 3 - Hard)
+
 		c. Goal Details
+
 		d. Start Date & Time
+
 		e. Estimated End Date & Time (Optional)
+		
 		f. End Date & Time (Upon goal completion)
