@@ -1,25 +1,31 @@
 import sqlite3
 
-def dbconfig():
-    # Create a database
-    con = sqlite3.connect('database.db')
-    cur = con.cursor()
+class DataBase():
+    def __init__(self, dbName) -> None:
+        self._connection = sqlite3.connect(f'{dbName}.db', detect_types=sqlite3.PARSE_DECLTYPES |
+                             sqlite3.PARSE_COLNAMES)
+        self.cursor = self.connection.cursor()
 
-    try:    # Create Tables
-        cur.execute("""CREATE TABLE userdata (
-                    exp_pts INTEGER
-                    )""")
-        cur.execute("INSERT INTO userdata VALUES(0)")
+    def create_tables(self) -> None:
+        try:    # Create Tables
+            self.cursor.execute("""CREATE TABLE userdata (
+                        name    TEXT        NOT NULL,
+                        exp_pts INTEGER
+                        )""")
 
-        cur.execute("""CREATE TABLE goaldata (
-                    goal_type       TEXT        NOT NULL,
-                    tier            TEXT        NOT NULL,
-                    goal_details    TEXT        NOT NULL,
-                    start_time      TEXT        NOT NULL,
-                    end_time        TEXT
-                    )""")
-        con.commit()
-    except: # Tables already exist
-        pass
+            self.cursor.execute("""CREATE TABLE goaldata (
+                        goal_type       TEXT        NOT NULL,
+                        tier            TEXT        NOT NULL,
+                        goal_details    TEXT        NOT NULL,
+                        start_time      TIMESTAMP   NOT NULL,
+                        end_time        TIMESTAMP
+                        )""")
+            
+            self.connection.commit()
 
-    return con
+        except: # Tables already exist
+            pass    
+    
+    @property
+    def getConnectionObject(self) -> None:
+        return self._connection

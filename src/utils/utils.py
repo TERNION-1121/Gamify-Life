@@ -1,5 +1,5 @@
 import sqlite3
-from utils.dbconfig import dbconfig
+from utils.dbconfig import DataBase
 
 
 def insert_record(item: tuple):
