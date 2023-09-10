@@ -1,4 +1,3 @@
-from utils.utils import insert_record
-from utils.dbconfig import dbconfig
+from utils.utils import welcome_screen
 
-import datetime
+welcome_screen()
