@@ -16,11 +16,12 @@ class DataBase():
         return self.cursor.fetchone()[0] == 0
 
     def create_tables(self) -> None:
-
         if self.is_empty(): # No tables exist
             self.cursor.execute("""CREATE TABLE userdata (
-                        name    TEXT        NOT NULL,
-                        exp_pts INTEGER
+                        first_name      TEXT        NOT NULL,
+                        middle_name     TEXT,
+                        last_name       TEXT,
+                        exp_pts         INTEGER
                         )""")
 
             self.cursor.execute("""CREATE TABLE goaldata (
@@ -33,9 +34,13 @@ class DataBase():
             
             self._connection.commit()
     
-    @property
-    def getConnectionObject(self) -> sqlite3.Connection:
-        return self._connection
+    def insertUserName(self, first_name, middle_name, last_name) -> None:
+        self.cursor.execute("INSERT INTO userdata VALUES(?, ?, ?, 0)", (first_name, middle_name, last_name))
+        self.commit()
+
+    # @property
+    # def getConnectionObject(self) -> sqlite3.Connection:
+    #     return self._connection
 
     def commit(self) -> None:
         self._connection.commit()
