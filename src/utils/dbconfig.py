@@ -2,9 +2,8 @@ import sqlite3
 import os
 
 class DataBase():
-    path = '/'.join([os.getcwd(), 'gli.db'])
     def __init__(self) -> None:
-        self._connection    = sqlite3.connect(DataBase.path)
+        self._connection    = sqlite3.connect('/'.join([os.getcwd(), 'gli.db']))
         self.cursor         = self._connection.cursor()
 
     def is_empty(self) -> bool:
@@ -33,7 +32,7 @@ class DataBase():
                         )""")
             
             self.commit()
-    
+
     def insertUserName(self, first_name, middle_name, last_name) -> None:
         self.cursor.execute("INSERT INTO userdata VALUES(?, ?, ?, 0)", (first_name, middle_name, last_name))
         self.commit()
@@ -48,6 +47,18 @@ class DataBase():
     
     def insert_goal_record(self, record) -> None:
         self.cursor.execute("INSERT INTO goaldata VALUES(?, ?, ?, ?, ?, ?)", record)
+        self.commit()
+
+    def get_all_goals(self, goal_status=None):
+        if goal_status == "In Progress":
+            return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='In Progress'").fetchall()
+        elif goal_status == "Completed":
+            return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='Completed'").fetchall()
+        else:
+            return self.cursor.execute("SELECT rowid, * FROM goaldata").fetchall()
+    
+    def set_goal_finish(self, goalID: int, dt: str):
+        self.cursor.execute("UPDATE goaldata SET end_time='?', status='Completed' WHERE rowid=?", (dt, goalID))
         self.commit()
 
     def commit(self) -> None:

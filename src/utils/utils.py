@@ -14,12 +14,6 @@ class Utilities():
         return all(ch in alphabets for ch in string)
 
     @staticmethod
-    def insert_record(item: tuple):
-        cur = db.cursor
-        cur.execute("INSERT INTO goaldata VALUES(?,?,?,?,?)", item)
-        db.commit()
-
-    @staticmethod
     def greet() -> None:
         name = db.getUserName()
         current_hour = datetime.datetime.now().hour
@@ -30,9 +24,36 @@ class Utilities():
         elif current_hour > 16 and current_hour < 24:
             console.print(f"Good Evening {name[0]}!", style="#7092DB")
     
+    @staticmethod
+    def print_goals(records, negate_endtime=False) -> None:
+        width = 117
+        console.print(f"| Goal ID ", end="")
+        console.print(f"|{'Goal Type'.center(21)}", end="")
+        console.print(f"| Tier ", end="")
+        console.print(f"|{'Goal Description'.center(40)}", end="")
+        console.print(f"|{'Goal Status'.center(13)}", end="")
+        console.print(f"|{'Start Time'.center(21)}|", end="")
+        if not negate_endtime:
+            width += 21
+            console.print(f"{'End Time'.center(21)}|", end="")
+        print("\n" + "-"*width)
+        for details in records:
+            goal_id, goal_type, tier, desc, status, st, et = details
+            console.print(f"|{str(goal_id).center(9)}", end="")
+            console.print(f"|{goal_type.center(21)}", end="")
+            console.print(f"|{tier.center(6)}", end="")
+            console.print(f"|{(desc[:35] + '...').center(40)}", end="")
+            console.print(f"|{status.center(13)}", end="")
+            console.print(f"|{st.center(21)}|", end="")
+            if not negate_endtime:
+                console.print(f"{et.center(21)}|", end="")
+            print()
+        print("-"*width)
 
 class Application():
     GOAL_TYPES = ["Academic", "Sports", "Self-Oriented", "Work/Skill-Oriented", "Others"]
+    running = True
+
     @staticmethod
     def getRank(exp: int) -> str:
         if exp < 100:
@@ -92,9 +113,10 @@ class Application():
         print(f"\033[{len(details)+5}A\033[0J", end="")
         console.print("[blue][+][/blue] Processing Data...")
         
-        dt = str(datetime.datetime.now())
+        dt = str(datetime.datetime.now()).split('.')[0]
         goal_record = (Application.GOAL_TYPES[goal_type-1], tier, '\n'.join(details), 'In Progress', dt, 'NULL', )
         db.insert_goal_record(goal_record)
+
         console.print(f"[green][+][/green] Goal record saved to database successfully with Start Time [green]=>[/green] {dt}")
         console.input("[black]Press [b]'Enter'[/b] to return to Home Menu ")
 
@@ -115,17 +137,60 @@ class Application():
         console.print("[bold blue underline]Home", end="\n\n")
         Utilities.greet()
         console.print("\nReady to take on another challenge?")
-        console.print("[black][Press 'P' then 'Enter' to view Profile]\n[Press 'Enter' to start with another goal]")
-        inp = console.input()
-        while inp.lower() not in " p":
-            print("\033[1A\033[2K", end='')
-            inp = console.input()
-        os.system("clear")
-        if inp == "":   # input goal and details
-            Application.new_goal()
-        elif inp.lower() == 'p':    # go to profile
-            Application.view_profile()
+        console.print("[black][Press 'P' then 'Enter' to view Profile]")
+        console.print("[black][Press 'S' then 'Enter' to begin with another goal]")
+        console.print("[black][Press 'E' then 'Enter' to complete a goal in progress]")
+        console.print("[black][Press 'Q' then 'Enter' to exit the application]")
         
+        while (inp := input()):
+            match (inp.lower()):
+                case 'p':
+                    os.system("clear")
+                    Application.view_profile()
+                    break
+                case 's':
+                    os.system("clear")
+                    Application.new_goal()
+                    break
+                case 'e':
+                    os.system("clear")
+                    Application.complete_goal()
+                    break 
+                case 'q':
+                    os.system("clear")
+                    Application.running = False
+                    break
+
+            print("\033[1A\033[2K", end='')
+    
+    @staticmethod
+    def complete_goal():
+        console.print("[bold blue underline]Goals in Progress", end="\n\n")
+
+        in_progress_goals = db.get_all_goals("In Progress")
+        if in_progress_goals == []:
+            console.print("Looks like there are no goals in progress :[\n[i]Why not begin with one?")
+        else:
+            Utilities.print_goals(in_progress_goals, negate_endtime=False)
+        
+            print("\n")
+            goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to set complete: ")
+            print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
+            try:
+                console.print("[blue][+][/blue] Processing Data...")
+                dt = str(datetime.datetime.now()).split('.')[0]
+                db.set_goal_finish(goal_id, dt)
+            except Exception:
+                console.print("[red][-][/red] An error occurred.")
+                console.print_exception(show_locals=True)
+            
+            else: 
+                console.print(f"[green][+][/green] Goal Completion successful with End Time [green]=>[/green] {dt}")
+
+        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
+
+        
+
     @staticmethod
     def new_comer_screen() -> None:
         console.print("[bold italic blue]   Welcome to")
@@ -135,13 +200,14 @@ class Application():
         print("\033[1A\033[2K", end = '')
 
         console.print("Alright! Let's get Started...")
-        fname = Application.process_name()
+        Application.process_name()
+        name = db.getUserName()
 
         print("\033[2A\033[0J", end = '')
-        console.input(f"Awesome [blue]{fname}[/blue]!\nPress [b]Enter[/b] to reach [u]Home Menu[/u]. ")
+        console.input(f"Awesome [blue]{name[0]}[/blue]!\nPress [b]Enter[/b] to reach [u]Home Menu[/u]. ")
 
     @staticmethod
-    def process_name() -> str:
+    def process_name():
         name = console.input("What's your [black]full[/black] name? ")
         while not Utilities.is_proper_alphabetical_string(name):
             print("\033[1A\033[2K", end="")
@@ -159,5 +225,3 @@ class Application():
 
         db.create_tables()
         db.insertUserName(first_name, middle_name, last_name)
-
-        return first_name

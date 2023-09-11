@@ -7,6 +7,6 @@ if db.is_empty():
     Application.new_comer_screen()
     os.system("clear")
 
-while True:
+while Application.running:
     os.system("clear")
     Application.home_screen()
