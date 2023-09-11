@@ -4,8 +4,7 @@ import os
 class DataBase():
     path = '/'.join([os.getcwd(), 'gli.db'])
     def __init__(self) -> None:
-        self._connection    = sqlite3.connect(DataBase.path, detect_types=sqlite3.PARSE_DECLTYPES |
-                             sqlite3.PARSE_COLNAMES)
+        self._connection    = sqlite3.connect(DataBase.path)
         self.cursor         = self._connection.cursor()
 
     def is_empty(self) -> bool:
@@ -47,6 +46,10 @@ class DataBase():
         self.cursor.execute("SELECT exp_pts from userdata")
         return self.cursor.fetchone()[0]
     
+    def insert_goal_record(self, record) -> None:
+        self.cursor.execute("INSERT INTO goaldata VALUES(?, ?, ?, ?, ?, ?)", record)
+        self.commit()
+
     def commit(self) -> None:
         self._connection.commit()
     
