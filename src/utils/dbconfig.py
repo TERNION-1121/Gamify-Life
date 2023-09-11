@@ -32,15 +32,11 @@ class DataBase():
                         end_time        TIMESTAMP
                         )""")
             
-            self._connection.commit()
+            self.commit()
     
     def insertUserName(self, first_name, middle_name, last_name) -> None:
         self.cursor.execute("INSERT INTO userdata VALUES(?, ?, ?, 0)", (first_name, middle_name, last_name))
         self.commit()
-
-    # @property
-    # def getConnectionObject(self) -> sqlite3.Connection:
-    #     return self._connection
 
     def commit(self) -> None:
         self._connection.commit()

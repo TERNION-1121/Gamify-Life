@@ -1,3 +1,3 @@
-from utils.utils import welcome_screen
+from utils.utils import Application
 
-welcome_screen()
+Application.home_screen()
