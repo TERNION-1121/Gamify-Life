@@ -1,5 +1,6 @@
 from utils.dbconfig import db 
 
+import datetime
 import os
 
 from rich import print as printc
@@ -18,18 +19,58 @@ class Utilities():
         cur.execute("INSERT INTO goaldata VALUES(?,?,?,?,?)", item)
         db.commit()
 
+    @staticmethod
+    def greet() -> None:
+        name = db.getUserName()
+        current_hour = datetime.datetime.now().hour
+        if current_hour >= 0 and current_hour < 12:
+            console.print(f"Good Morning {name[0]}!", style="#78FF93")
+        elif current_hour >= 12 and current_hour < 16:
+            console.print(f"Good Afternoon {name[0]}!", style="#97FFFE")
+        elif current_hour > 16 and current_hour < 24:
+            console.print(f"Good Evening {name[0]}!", style="#7092DB")
+
 class Application():
     @staticmethod
+    def getRank(exp: int) -> str:
+        if exp < 100:
+            return "[black]Level (I):[/black]\t[cyan italic underline]Neophyte"
+        elif exp < 250:
+            return "[black]Level (II):[/black]\t[cyan italic underline]Intermediate"
+        elif exp < 500:
+            return "[black]Level (III):[/black]\t[cyan italic underline]Adept"
+        elif exp < 800:
+            return "[black]Level (IV):[/black]\t[cyan italic underline]Prime"
+        elif exp >= 1200:
+            return "[black]Level (V):[/black]\t[cyan italic underline]Paramount"
+        
+    @staticmethod
+    def view_profile():
+        console.print("[bold blue underline]Profile", end="\n\n")
+
+        name = ' '.join(db.getUserName())
+        exp  = db.getExperiencePts()
+
+        console.print(f"[black]Name:[/black]\t\t[cyan italic underline]{name}")
+        console.print(f"{Application.getRank(exp)}")
+        console.print(f"[black]Exp. Pts.:[/black]\t{exp}")
+
+    @staticmethod
     def home_screen():
-        os.system("cls")
-
-        if db.is_empty():
-            Application.new_comer_screen()
-            os.system("cls")
-
-        console.print("[bold blue underline]Home")
-        console.print("", justify="right")
-
+        console.print("[bold blue underline]Home", end="\n\n")
+        Utilities.greet()
+        console.print("\nReady to take on another challenge?")
+        console.print("[black][Press 'P' then 'Enter' to view Profile]\n[Press 'Enter' to start with another goal]")
+        inp = console.input()
+        while inp.lower() not in " p":
+            print("\033[1A\033[2K", end='')
+            inp = console.input()
+        os.system("clear")
+        if inp == "":   # input goal and details
+            pass
+        elif inp.lower() == 'p':    # go to profile
+            Application.view_profile()
+        
     @staticmethod
     def new_comer_screen():
         console.print("[bold italic blue]   Welcome to")
@@ -63,4 +104,5 @@ class Application():
 
         db.create_tables()
         db.insertUserName(first_name, middle_name, last_name)
+
         return first_name
