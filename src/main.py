@@ -2,11 +2,11 @@ from utils.utils import Application
 from utils.dbconfig import db
 import os
 
-os.system("cls")
+os.system("clear")
 if db.is_empty():
     Application.new_comer_screen()
-    os.system("cls")
+    os.system("clear")
 
 while Application.running:
-    os.system("cls")
+    os.system("clear")
     Application.home_screen()

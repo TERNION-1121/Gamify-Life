@@ -3,8 +3,6 @@ from utils.dbconfig import db
 import datetime
 import os
 
-import keyboard
-
 from rich import print as printc
 from rich.console import Console 
 console = Console()
@@ -28,7 +26,7 @@ class Utilities():
     
     @staticmethod
     def print_goals(records, negate_endtime=False) -> None:
-        width = 117
+        width = 118
         console.print(f"| Goal ID ", end="")
         console.print(f"|{'Goal Type'.center(21)}", end="")
         console.print(f"| Tier ", end="")
@@ -54,20 +52,15 @@ class Utilities():
 
 class Application():
     GOAL_TYPES = ["Academic", "Sports", "Self-Oriented", "Work/Skill-Oriented", "Others"]
+    RANKS      = {"Neophyte": ('I', (0, 100)), "Intermediate": ('II', (100, 300)), "Adept": ('III', (300, 650)), "Prime": ('IV', (650, 1000)), "Paramount": ('V', (1000, 2**31-1))}
     running = True
 
     @staticmethod
     def getRank(exp: int) -> str:
-        if exp < 100:
-            return "[black]Level (I):[/black]\t[cyan italic underline]Neophyte"
-        elif exp < 250:
-            return "[black]Level (II):[/black]\t[cyan italic underline]Intermediate"
-        elif exp < 500:
-            return "[black]Level (III):[/black]\t[cyan italic underline]Adept"
-        elif exp < 800:
-            return "[black]Level (IV):[/black]\t[cyan italic underline]Prime"
-        elif exp >= 1200:
-            return "[black]Level (V):[/black]\t[cyan italic underline]Paramount"
+        for rank in Application.RANKS:
+            lowerLimit, upperLimit = Application.RANKS[rank][1]
+            if lowerLimit <= exp < upperLimit:
+                return f"[black]Level ({Application.RANKS[rank][0]}): [/black]\t[cyan italic underline]{rank}"
         
     @staticmethod
     def new_goal():
@@ -135,39 +128,54 @@ class Application():
         console.rule(characters="=")
         print("\n")
         
-        console.input()
+        console.print(f"[italic underline]Completed Goals\n", style="#90E13F")
+        completed = db.get_all_goals(goal_status="Completed")
+        if len(completed) == 0:
+            console.print("No completed goals :[\n[i]Why not start with one?")
+        else:
+            Utilities.print_goals(completed)
+        
+        print("\n")
+        console.print(f"[italic underline]Goals in Progress\n", style="#90E13F")
+        in_progress = db.get_all_goals(goal_status="In Progress")
+        if len(in_progress) == 0:
+            console.print("No goals in progress :[\n[i]Why not start with one?")
+        else:
+            Utilities.print_goals(in_progress, negate_endtime=True)
+
+        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
 
     @staticmethod
     def home_screen() -> None:
         console.print("[bold blue underline]Home", end="\n\n")
         Utilities.greet()
         console.print("\nReady to take on another challenge?")
-        console.print("[black][Press 'P' then 'Enter' to view Profile]")
+        console.print("[black][Press 'P' then 'Enter' to view profile]")
         console.print("[black][Press 'S' then 'Enter' to begin with another goal]")
         console.print("[black][Press 'E' then 'Enter' to complete a goal in progress]")
-        console.print("[black][Press 'D' then 'Enter to dump a goal in progress]")
+        console.print("[black][Press 'D' then 'Enter' to dump a goal in progress]")
         console.print("[black][Press 'Q' then 'Enter' to exit the application]")
         
         while (inp := input()):
             match (inp.lower()):
                 case 'p':
-                    os.system("cls")
+                    os.system("clear")
                     Application.view_profile()
                     break
                 case 's':
-                    os.system("cls")
+                    os.system("clear")
                     Application.new_goal()
                     break
                 case 'e':
-                    os.system("cls")
+                    os.system("clear")
                     Application.complete_goal()
                     break 
                 case 'd':
-                    os.system("cls")
+                    os.system("clear")
                     Application.dump_goal()
                     break
                 case 'q':
-                    os.system("cls")
+                    os.system("clear")
                     Application.running = False
                     break
 
@@ -196,6 +204,8 @@ class Application():
             
             else: 
                 console.print(f"[green][+][/green] Goal Completion successful with End Time [green]=>[/green] {dt}")
+                console.print(f"[green][+][/green] You earned {db.update_exp(goal_id)} exp. pts. completing the goal")
+                
 
         console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
 

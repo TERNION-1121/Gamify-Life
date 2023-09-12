@@ -49,7 +49,7 @@ class DataBase():
         self.cursor.execute("INSERT INTO goaldata VALUES(?, ?, ?, ?, ?, ?)", record)
         self.commit()
 
-    def get_all_goals(self, goal_status=None):
+    def get_all_goals(self, goal_status=None) -> list:
         if goal_status == "In Progress":
             return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='In Progress'").fetchall()
         elif goal_status == "Completed":
@@ -59,13 +59,29 @@ class DataBase():
         else:
             return self.cursor.execute("SELECT rowid, * FROM goaldata").fetchall()
     
-    def set_goal_finish(self, goalID: int, dt: str):
-        self.cursor.execute("UPDATE goaldata SET end_time='?', status='Completed' WHERE rowid=?", (dt, goalID))
+    def set_goal_finish(self, goalID: int, dt: str) -> None:
+        self.cursor.execute(f"UPDATE goaldata SET end_time='{dt}', status='Completed' WHERE rowid={goalID}")
         self.commit()
     
-    def drop_goal_record(self, goalID: int):
+    def drop_goal_record(self, goalID: int) -> None:
         self.cursor.execute("DELETE FROM goaldata WHERE rowid=?", (goalID))
         self.commit()
+
+    def update_exp(self, goalID:str) -> int:
+        tier = self.cursor.execute(f"SELECT tier FROM goaldata WHERE rowid={goalID}").fetchone()[0]
+        match tier:
+            case '1':
+                exp = 10
+            case '2':
+                exp = 50
+            case '3':
+                exp = 100
+        self.cursor.execute(f"UPDATE userdata SET exp_pts={db.getExperiencePts()+exp}")
+        self.commit()
+        return exp
+    
+    def check_level_update(self):
+        pass
 
     def commit(self) -> None:
         self._connection.commit()
