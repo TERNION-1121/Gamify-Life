@@ -3,6 +3,8 @@ from utils.dbconfig import db
 import datetime
 import os
 
+import keyboard
+
 from rich import print as printc
 from rich.console import Console 
 console = Console()
@@ -118,7 +120,7 @@ class Application():
         db.insert_goal_record(goal_record)
 
         console.print(f"[green][+][/green] Goal record saved to database successfully with Start Time [green]=>[/green] {dt}")
-        console.input("[black]Press [b]'Enter'[/b] to return to Home Menu ")
+        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
 
     @staticmethod
     def view_profile():
@@ -129,7 +131,10 @@ class Application():
 
         console.print(f"[black]Name:[/black]\t\t[cyan italic underline]{name}")
         console.print(f"{Application.getRank(exp)}")
-        console.print(f"[black]Exp. Pts.:[/black]\t[i]{exp}")
+        console.print(f"[black]Exp. Pts.:[/black]\t[i]{exp}", end="\n\n")
+        console.rule(characters="=")
+        print("\n")
+        
         console.input()
 
     @staticmethod
@@ -140,24 +145,29 @@ class Application():
         console.print("[black][Press 'P' then 'Enter' to view Profile]")
         console.print("[black][Press 'S' then 'Enter' to begin with another goal]")
         console.print("[black][Press 'E' then 'Enter' to complete a goal in progress]")
+        console.print("[black][Press 'D' then 'Enter to dump a goal in progress]")
         console.print("[black][Press 'Q' then 'Enter' to exit the application]")
         
         while (inp := input()):
             match (inp.lower()):
                 case 'p':
-                    os.system("clear")
+                    os.system("cls")
                     Application.view_profile()
                     break
                 case 's':
-                    os.system("clear")
+                    os.system("cls")
                     Application.new_goal()
                     break
                 case 'e':
-                    os.system("clear")
+                    os.system("cls")
                     Application.complete_goal()
                     break 
+                case 'd':
+                    os.system("cls")
+                    Application.dump_goal()
+                    break
                 case 'q':
-                    os.system("clear")
+                    os.system("cls")
                     Application.running = False
                     break
 
@@ -171,7 +181,7 @@ class Application():
         if in_progress_goals == []:
             console.print("Looks like there are no goals in progress :[\n[i]Why not begin with one?")
         else:
-            Utilities.print_goals(in_progress_goals, negate_endtime=False)
+            Utilities.print_goals(in_progress_goals, negate_endtime=True)
         
             print("\n")
             goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to set complete: ")
@@ -189,7 +199,30 @@ class Application():
 
         console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
 
-        
+    @staticmethod
+    def dump_goal() -> None:
+        console.print("[bold blue underline]Goals in Progress", end="\n\n")
+
+        in_progress_goals = db.get_all_goals("In Progress")
+        if in_progress_goals == []:
+            console.print("Seems like there are no goals to dump!")
+        else:
+            Utilities.print_goals(in_progress_goals, negate_endtime=False)
+
+            print("\n")
+            goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to dump: ")
+            print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
+            try:
+                console.print("[blue][+][/blue] Processing drop request...")
+                db.drop_goal_record(goal_id)
+            except Exception:
+                console.print("[red][-][/red] An error occurred.")
+                console.print_exception(show_locals=True)
+            
+            else: 
+                console.print(f"[green][+][/green] Goal Record {goal_id} successfully deleted from database")
+
+        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
 
     @staticmethod
     def new_comer_screen() -> None:

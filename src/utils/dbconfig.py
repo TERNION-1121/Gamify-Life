@@ -54,11 +54,17 @@ class DataBase():
             return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='In Progress'").fetchall()
         elif goal_status == "Completed":
             return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='Completed'").fetchall()
+        elif goal_status == "Dumped":
+            return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='Dumped'").fetchall()
         else:
             return self.cursor.execute("SELECT rowid, * FROM goaldata").fetchall()
     
     def set_goal_finish(self, goalID: int, dt: str):
         self.cursor.execute("UPDATE goaldata SET end_time='?', status='Completed' WHERE rowid=?", (dt, goalID))
+        self.commit()
+    
+    def drop_goal_record(self, goalID: int):
+        self.cursor.execute("DELETE FROM goaldata WHERE rowid=?", (goalID))
         self.commit()
 
     def commit(self) -> None:
