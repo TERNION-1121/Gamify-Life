@@ -42,6 +42,7 @@ class Utilities():
             console.print(f"|{str(goal_id).center(9)}", end="")
             console.print(f"|{goal_type.center(21)}", end="")
             console.print(f"|{tier.center(6)}", end="")
+            desc = desc.split('\n')[0]
             console.print(f"|{(desc[:35] + '...').center(40)}", end="")
             console.print(f"|{status.center(13)}", end="")
             console.print(f"|{st.center(21)}|", end="")
@@ -52,15 +53,26 @@ class Utilities():
 
 class Application():
     GOAL_TYPES = ["Academic", "Sports", "Self-Oriented", "Work/Skill-Oriented", "Others"]
-    RANKS      = {"Neophyte": ('I', (0, 100)), "Intermediate": ('II', (100, 300)), "Adept": ('III', (300, 650)), "Prime": ('IV', (650, 1000)), "Paramount": ('V', (1000, 2**31-1))}
+
+    RANKS      = {  1: ('Neophyte', (0, 100)), 2: ('Intermediate', (100, 300)), 
+                    3: ('Adept', (300, 650)), 4: ('Prime', (650, 1000)), 
+                    5: ('Paramount', (1000, 2**31-1))}
     running = True
+
+    @staticmethod
+    def check_level_update(exp: int) -> tuple:
+        for rank in Application.RANKS:
+            upperLimit = Application.RANKS[rank][1][1]
+            if exp >= upperLimit:
+                return (True, rank+1)
+        return (False, None)
 
     @staticmethod
     def getRank(exp: int) -> str:
         for rank in Application.RANKS:
             lowerLimit, upperLimit = Application.RANKS[rank][1]
             if lowerLimit <= exp < upperLimit:
-                return f"[black]Level ({Application.RANKS[rank][0]}): [/black]\t[cyan italic underline]{rank}"
+                return f"[black]Level ({rank}): [/black]\t[cyan italic underline]{Application.RANKS[rank][0]}"
         
     @staticmethod
     def new_goal():
@@ -205,6 +217,11 @@ class Application():
             else: 
                 console.print(f"[green][+][/green] Goal Completion successful with End Time [green]=>[/green] {dt}")
                 console.print(f"[green][+][/green] You earned {db.update_exp(goal_id)} exp. pts. completing the goal")
+
+                t = Application.check_level_update(db.getExperiencePts())
+                if t[0]:
+                    console.print("[yellow][+][/yellow] Congratulations! You ranked up!")
+                    console.print(f"\tYour updated rank [green]=>[/green] [cyan italic]({t[1]}): [u]{Application.RANKS[t[1]][0]}")
                 
 
         console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")

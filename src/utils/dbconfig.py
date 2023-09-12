@@ -79,9 +79,6 @@ class DataBase():
         self.cursor.execute(f"UPDATE userdata SET exp_pts={db.getExperiencePts()+exp}")
         self.commit()
         return exp
-    
-    def check_level_update(self):
-        pass
 
     def commit(self) -> None:
         self._connection.commit()
