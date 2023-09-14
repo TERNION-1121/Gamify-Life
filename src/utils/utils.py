@@ -3,7 +3,6 @@ from utils.dbconfig import db
 import datetime
 import os
 
-from rich import print as printc
 from rich.console import Console 
 console = Console()
 
@@ -26,24 +25,24 @@ class Utilities():
     
     @staticmethod
     def print_goals(records, negate_endtime=False) -> None:
-        width = 118
+        width = 117
         console.print(f"| Goal ID ", end="")
         console.print(f"|{'Goal Type'.center(21)}", end="")
         console.print(f"| Tier ", end="")
-        console.print(f"|{'Goal Description'.center(40)}", end="")
+        console.print(f"|{'Goal Title'.center(40)}", end="")
         console.print(f"|{'Goal Status'.center(13)}", end="")
         console.print(f"|{'Start Time'.center(21)}|", end="")
         if not negate_endtime:
-            width += 21
+            width += 22
             console.print(f"{'End Time'.center(21)}|", end="")
         print("\n" + "-"*width)
         for details in records:
-            goal_id, goal_type, tier, desc, status, st, et = details
+            goal_id, goal_type, tier, desc, status, st, et, title = details
             console.print(f"|{str(goal_id).center(9)}", end="")
             console.print(f"|{goal_type.center(21)}", end="")
             console.print(f"|{tier.center(6)}", end="")
-            desc = desc.split('\n')[0]
-            console.print(f"|{(desc[:35] + '...').center(40)}", end="")
+            title = title if len(title) < 40 else title[:35] + '...'
+            console.print(f"|{(title).center(40)}", end="")
             console.print(f"|{status.center(13)}", end="")
             console.print(f"|{st.center(21)}|", end="")
             if not negate_endtime:
@@ -73,7 +72,34 @@ class Application():
             lowerLimit, upperLimit = Application.RANKS[rank][1]
             if lowerLimit <= exp < upperLimit:
                 return f"[black]Level ({rank}): [/black]\t[cyan italic underline]{Application.RANKS[rank][0]}"
+    
+    @staticmethod
+    def view_goal_desc() -> None:
+        goals = db.get_all_goals()
+        valid_ids = [i[0] for i in goals]
+        goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to be viewed: ")
+        while int(goal_id) not in valid_ids:
+            print("\033[1A\033[0J", end='')
+            goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to be viewed [Invalid Goal ID was entered]: ")
+        print("\033[1A\033[0J", end='')
+
+        record = db.get_goal_details(goal_id)
+        goal_type, tier, desc, status, st, et, title = record
         
+        console.print(f"[blue italic underline]{title}[/blue italic underline] [italic][{goal_id}][/italic]", end='\n\n')
+        console.print(f"[blue]{goal_type}[/blue] | [blue]Tier[/blue] {tier}", end='\n\n')
+        console.print(f"[green][+] Started at[/green]: {st}")
+        if status == "In Progress":
+            color = "yellow"
+        else:
+            console.print(f"[blue][+] Completed at[/blue]: {et}")
+            color = "green"
+        console.print(f"[blue]Status[/blue]: [{color}]{status}", end='\n\n')
+        console.print(f"[blue underline]Description[/blue underline]")
+        console.print(f"{desc}", end='\n\n')
+        
+        console.input("[black]Press [b]'Enter'[/b] to return to Home Menu ")
+
     @staticmethod
     def new_goal():
         console.print("[bold blue underline]New Goal", end="\n\n")
@@ -107,6 +133,12 @@ class Application():
         tier = int(inp)
 
         print("\033[7A\033[0J", end='')
+        console.print("Now, type the [i]title[/i] of your goal.")
+        console.print("[red][+][red][black] It is [italic]strictly recommended[/italic] to have less than 40 characters in your title.")
+        console.print("[black italic]    Crisp titles are nice :]", end='\n\n')
+        title = console.input()
+        print("\033[1A\033[2K", end='')
+        console.print(f"[yellow bold]{title}", end="\n\n")
         console.print("Now, write about the [i]details[/i] of the goal. Try to accomodate [u]one detail per line[/u].")
         console.print("[black](when finished, press [b]'Enter'[/b] twice; \"\" indicates the end of goal details.)", end="\n\n")
         console.print("[red][+][red][black] At least [u]one line containing at least 5 words[/u] describing your goal is required.")
@@ -117,11 +149,11 @@ class Application():
         while (inp := input()) != "":
             details.append(inp)
         
-        print(f"\033[{len(details)+5}A\033[0J", end="")
+        print(f"\033[{len(details)+11}A\033[0J", end="")
         console.print("[blue][+][/blue] Processing Data...")
         
         dt = str(datetime.datetime.now()).split('.')[0]
-        goal_record = (Application.GOAL_TYPES[goal_type-1], tier, '\n'.join(details), 'In Progress', dt, 'NULL', )
+        goal_record = (Application.GOAL_TYPES[goal_type-1], tier, '\n'.join(details), 'In Progress', dt, 'NULL', title)
         db.insert_goal_record(goal_record)
 
         console.print(f"[green][+][/green] Goal record saved to database successfully with Start Time [green]=>[/green] {dt}")
@@ -155,7 +187,21 @@ class Application():
         else:
             Utilities.print_goals(in_progress, negate_endtime=True)
 
-        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
+        if len(completed) + len(in_progress) == 0:
+            console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu")
+        else:
+            console.print("\n[black]Press [b]'Enter'[/b] to return to Home Menu")
+            console.print("[black]Press [b]'V'[/b] then [b]'Enter'[/b] to enter View Goal Mode")
+            while (inp := input()):
+                match inp.lower():
+                    case '':
+                        break
+                    case 'v':
+                        print("\033[3A\033[0J", end='')
+                        Application.view_goal_desc()
+                        break
+
+                print("\033[1A\033[2K", end='')
 
     @staticmethod
     def home_screen() -> None:
@@ -171,23 +217,23 @@ class Application():
         while (inp := input()):
             match (inp.lower()):
                 case 'p':
-                    os.system("clear")
+                    os.system("cls")
                     Application.view_profile()
                     break
                 case 's':
-                    os.system("clear")
+                    os.system("cls")
                     Application.new_goal()
                     break
                 case 'e':
-                    os.system("clear")
+                    os.system("cls")
                     Application.complete_goal()
                     break 
                 case 'd':
-                    os.system("clear")
+                    os.system("cls")
                     Application.dump_goal()
                     break
                 case 'q':
-                    os.system("clear")
+                    os.system("cls")
                     Application.running = False
                     break
 
@@ -202,9 +248,12 @@ class Application():
             console.print("Looks like there are no goals in progress :[\n[i]Why not begin with one?")
         else:
             Utilities.print_goals(in_progress_goals, negate_endtime=True)
-        
+            valid_ids = [i[0] for i in in_progress_goals]
             print("\n")
             goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to set complete: ")
+            while int(goal_id) not in valid_ids:
+                print("\033[1A\033[0J", end='')
+                goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to set complete [Invalid Goal ID was entered]: ")
             print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
             try:
                 console.print("[blue][+][/blue] Processing Data...")
@@ -234,10 +283,13 @@ class Application():
         if in_progress_goals == []:
             console.print("Seems like there are no goals to dump!")
         else:
-            Utilities.print_goals(in_progress_goals, negate_endtime=False)
-
+            Utilities.print_goals(in_progress_goals, negate_endtime=True)
+            valid_ids = [i[0] for i in in_progress_goals]
             print("\n")
             goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to dump: ")
+            while int(goal_id) not in valid_ids:
+                print("\033[1A\033[0J", end='')
+                goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to dump [Invalid Goal ID was entered]: ")
             print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
             try:
                 console.print("[blue][+][/blue] Processing drop request...")

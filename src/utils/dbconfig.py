@@ -25,6 +25,7 @@ class DataBase():
             self.cursor.execute("""CREATE TABLE goaldata (
                         type            TEXT        NOT NULL,
                         tier            TEXT        NOT NULL,
+                        title           TEXT        NOT NULL,
                         description     TEXT        NOT NULL,
                         status          TEXT        NOT NULL,
                         start_time      TIMESTAMP   NOT NULL,
@@ -46,8 +47,11 @@ class DataBase():
         return self.cursor.fetchone()[0]
     
     def insert_goal_record(self, record) -> None:
-        self.cursor.execute("INSERT INTO goaldata VALUES(?, ?, ?, ?, ?, ?)", record)
+        self.cursor.execute("INSERT INTO goaldata VALUES(?, ?, ?, ?, ?, ?, ?)", record)
         self.commit()
+    
+    def get_goal_details(self, goalID : int) -> list:
+        return self.cursor.execute(f"SELECT * FROM goaldata WHERE rowid={goalID}").fetchone()
 
     def get_all_goals(self, goal_status=None) -> list:
         if goal_status == "In Progress":
