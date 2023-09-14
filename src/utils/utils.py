@@ -37,7 +37,7 @@ class Utilities():
             console.print(f"{'End Time'.center(21)}|", end="")
         print("\n" + "-"*width)
         for details in records:
-            goal_id, goal_type, tier, desc, status, st, et, title = details
+            goal_id, goal_type, tier, title, desc, status, st, et= details
             console.print(f"|{str(goal_id).center(9)}", end="")
             console.print(f"|{goal_type.center(21)}", end="")
             console.print(f"|{tier.center(6)}", end="")
@@ -84,7 +84,7 @@ class Application():
         print("\033[1A\033[0J", end='')
 
         record = db.get_goal_details(goal_id)
-        goal_type, tier, desc, status, st, et, title = record
+        goal_type, tier, title, desc, status, st, et = record
         
         console.print(f"[blue italic underline]{title}[/blue italic underline] [italic][{goal_id}][/italic]", end='\n\n')
         console.print(f"[blue]{goal_type}[/blue] | [blue]Tier[/blue] {tier}", end='\n\n')
@@ -153,7 +153,7 @@ class Application():
         console.print("[blue][+][/blue] Processing Data...")
         
         dt = str(datetime.datetime.now()).split('.')[0]
-        goal_record = (Application.GOAL_TYPES[goal_type-1], tier, '\n'.join(details), 'In Progress', dt, 'NULL', title)
+        goal_record = (Application.GOAL_TYPES[goal_type-1], tier, title, '\n'.join(details), 'In Progress', dt, 'NULL')
         db.insert_goal_record(goal_record)
 
         console.print(f"[green][+][/green] Goal record saved to database successfully with Start Time [green]=>[/green] {dt}")
@@ -163,7 +163,7 @@ class Application():
     def view_profile():
         console.print("[bold blue underline]Profile", end="\n\n")
 
-        name = ' '.join(db.getUserName())
+        name = ' '.join(db.getUserName()).replace('NULL', '').strip()
         exp  = db.getExperiencePts()
 
         console.print(f"[black]Name:[/black]\t\t[cyan italic underline]{name}")
@@ -188,7 +188,7 @@ class Application():
             Utilities.print_goals(in_progress, negate_endtime=True)
 
         if len(completed) + len(in_progress) == 0:
-            console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu")
+            console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
         else:
             console.print("\n[black]Press [b]'Enter'[/b] to return to Home Menu")
             console.print("[black]Press [b]'V'[/b] then [b]'Enter'[/b] to enter View Goal Mode")
