@@ -1,12 +1,10 @@
-from utils.utils import Application
-from utils.dbconfig import db
+from utils.utils import Application, cmd
 import os
 
-os.system("cls")
-if db.is_empty():
+os.system(cmd)
+if Application.is_database_empty():
     Application.new_comer_screen()
-    os.system("cls")
 
-while Application.running:
-    os.system("cls")
+while Application.RUNNING:
+    os.system(cmd)
     Application.home_screen()

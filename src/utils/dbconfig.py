@@ -1,9 +1,8 @@
 import sqlite3
-import os
 
 class DataBase():
     def __init__(self) -> None:
-        self._connection    = sqlite3.connect('/'.join([os.getcwd(), 'gli.db']))
+        self._connection    = sqlite3.connect('gli.db')
         self.cursor         = self._connection.cursor()
 
     def is_empty(self) -> bool:
@@ -58,8 +57,6 @@ class DataBase():
             return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='In Progress'").fetchall()
         elif goal_status == "Completed":
             return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='Completed'").fetchall()
-        elif goal_status == "Dumped":
-            return self.cursor.execute("SELECT rowid, * FROM goaldata WHERE status='Dumped'").fetchall()
         else:
             return self.cursor.execute("SELECT rowid, * FROM goaldata").fetchall()
     
@@ -80,6 +77,7 @@ class DataBase():
                 exp = 50
             case '3':
                 exp = 100
+                
         self.cursor.execute(f"UPDATE userdata SET exp_pts={db.getExperiencePts()+exp}")
         self.commit()
         return exp
