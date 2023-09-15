@@ -82,17 +82,17 @@ class Application():
         for rank in Application.RANKS:
             lowerLimit, upperLimit = Application.RANKS[rank][1]
             if lowerLimit <= exp < upperLimit:
-                return f"[black]Level ({rank}): [/black]\t[cyan italic underline]{Application.RANKS[rank][0]}"
+                return f"[grey]Level ({rank}): [/grey]\t[cyan italic underline]{Application.RANKS[rank][0]}"
     
     @staticmethod
     def view_goal_desc() -> None:
         goals = db.get_all_goals()
         valid_ids = [i[0] for i in goals]
 
-        goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to be viewed: ")
+        goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to be viewed: ")
         while (goal_id.isalpha() or goal_id.isspace() or goal_id == '') or int(goal_id) not in valid_ids:
             print("\033[1A\033[0J", end='')
-            goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to be viewed [Invalid Goal ID was entered]: ")
+            goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to be viewed [Invalid Goal ID was entered]: ")
         print("\033[1A\033[0J", end='')
         # ^ ANSI escape codes reference: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 
@@ -113,7 +113,7 @@ class Application():
         console.print(f"[blue underline]Description[/blue underline]")
         console.print(f"{desc}", end='\n\n')
         
-        console.input("[black]Press [b]'Enter'[/b] to return to Home Menu ")
+        console.input("[grey]Press [b]'Enter'[/b] to return to Home Menu ")
 
     @staticmethod
     def new_goal():
@@ -128,10 +128,10 @@ class Application():
         console.print("\t4. Work/Skill-Oriented")
         console.print("\t5. Others")
 
-        inp = console.input("[black] [Enter your choice]: ")
+        inp = console.input("[grey] [Enter your choice]: ")
         while inp not in "12345":
             print("\033[1A\033[2K", end='')
-            inp = console.input("[black]Enter your choice: ")
+            inp = console.input("[grey]Enter your choice: ")
         goal_type = int(inp)
 
         print("\033[7A\033[0J", end='')
@@ -140,16 +140,16 @@ class Application():
         console.print("\t2. Tier II (goal with moderate time consumption and difficulty)")
         console.print("\t3. Tier III (big goal / would take longer periods of time)")
 
-        inp = console.input("[black]Enter your choice: ")
+        inp = console.input("[grey]Enter your choice: ")
         while inp not in "123":
             print("\033[1A\033[2K", end='')
-            inp = console.input("[black]Enter your choice: ")
+            inp = console.input("[grey]Enter your choice: ")
         tier = int(inp)
 
         print("\033[7A\033[0J", end='')
         console.print("Now, type the [i]title[/i] of your goal.")
-        console.print("[red][+][red][black] It is [italic]strictly recommended[/italic] to have less than 40 characters in your title.")
-        console.print("[black italic]    Crisp titles are nice :]", end='\n\n')
+        console.print("[red][+][red][grey] It is [italic]strictly recommended[/italic] to have less than 40 characters in your title.")
+        console.print("[grey italic]    Crisp titles are nice :]", end='\n\n')
         title = console.input()
 
         print("\033[1A\033[2K", end='')
@@ -157,8 +157,8 @@ class Application():
 
 
         console.print("Now, write about the [i]details[/i] of the goal. Try to accomodate [u]one detail per line[/u].")
-        console.print("[black](when finished, press [b]'Enter'[/b] twice; \"\" indicates the end of goal details.)", end="\n\n")
-        console.print("[red][+][red][black] At least [u]one line containing at least 5 words[/u] describing your goal is required.")
+        console.print("[grey](when finished, press [b]'Enter'[/b] twice; \"\" indicates the end of goal details.)", end="\n\n")
+        console.print("[red][+][red][grey] At least [u]one line containing at least 5 words[/u] describing your goal is required.")
         
         details = list()
         while details == [] and len((inp := input()).split()) < 5:
@@ -175,7 +175,7 @@ class Application():
         db.insert_goal_record(goal_record)
 
         console.print(f"[green][+][/green] Goal record saved to database successfully with Start Time [green]=>[/green] {st}")
-        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
+        console.input("\n[grey]Press [b]'Enter'[/b] to return to Home Menu ")
 
     @staticmethod
     def view_profile():
@@ -184,9 +184,9 @@ class Application():
         name = ' '.join(db.getUserName()).replace('NULL', '').strip()
         exp  = db.getExperiencePts()
 
-        console.print(f"[black]Name:[/black]\t\t[cyan italic underline]{name}")
+        console.print(f"[grey]Name:[/grey]\t\t[cyan italic underline]{name}")
         console.print(f"{Application.getRank(exp)}")
-        console.print(f"[black]Exp. Pts.:[/black]\t[i]{exp}", end="\n\n")
+        console.print(f"[grey]Exp. Pts.:[/grey]\t[i]{exp}", end="\n\n")
         console.rule(characters="=")
         print("\n")
         
@@ -206,11 +206,11 @@ class Application():
             Utilities.print_goals(in_progress, negate_endtime=True)
 
         if len(completed) + len(in_progress) == 0:
-            console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
+            console.input("\n[grey]Press [b]'Enter'[/b] to return to Home Menu ")
         else:
             print()
-            console.print("[black]Press [b]'Enter'[/b] to return to Home Menu")
-            console.print("[black]Press [b]'V'[/b] then [b]'Enter'[/b] to enter View Goal Mode")
+            console.print("[grey]Press [b]'Enter'[/b] to return to Home Menu")
+            console.print("[grey]Press [b]'V'[/b] then [b]'Enter'[/b] to enter View Goal Mode")
             while (inp := input()):
                 match inp.lower():
                     case '':
@@ -227,11 +227,11 @@ class Application():
         console.print("[bold blue underline]Home", end="\n\n")
         Utilities.greet()
         console.print("\nReady to take on another challenge?")
-        console.print("[black][Press [b]'P'[/b] then [b]'Enter'[/b] to view profile]")
-        console.print("[black][Press [b]'S'[/b] then [b]'Enter'[/b] to begin with another goal]")
-        console.print("[black][Press [b]'E'[/b] then [b]'Enter'[/b] to complete a goal in progress]")
-        console.print("[black][Press [b]'D'[/b] then [b]'Enter'[/b] to dump a goal in progress]")
-        console.print("[black][Press [b]'Q'[/b] then [b]'Enter'[/b] to exit the application]")
+        console.print("[grey][Press [b]'P'[/b] then [b]'Enter'[/b] to view profile]")
+        console.print("[grey][Press [b]'S'[/b] then [b]'Enter'[/b] to begin with another goal]")
+        console.print("[grey][Press [b]'E'[/b] then [b]'Enter'[/b] to complete a goal in progress]")
+        console.print("[grey][Press [b]'D'[/b] then [b]'Enter'[/b] to dump a goal in progress]")
+        console.print("[grey][Press [b]'Q'[/b] then [b]'Enter'[/b] to exit the application]")
         
         while (inp := input()):
             match (inp.lower()):
@@ -270,10 +270,10 @@ class Application():
             valid_ids = [i[0] for i in in_progress_goals]
             
             print(end="\n\n")
-            goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to set complete: ")
+            goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to set complete: ")
             while (goal_id.isalpha() or goal_id.isspace() or goal_id == '') or int(goal_id) not in valid_ids:
                 print("\033[1A\033[0J", end='')
-                goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to set complete [Invalid Goal ID was entered]: ")
+                goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to set complete [Invalid Goal ID was entered]: ")
             print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
 
             try:
@@ -292,7 +292,7 @@ class Application():
                     console.print("[yellow][+][/yellow] Congratulations! You ranked up!")
                     console.print(f"\tYour updated rank [green]=>[/green] [cyan italic]({t[1]}): [u]{Application.RANKS[t[1]][0]}")
                 
-        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
+        console.input("\n[grey]Press [b]'Enter'[/b] to return to Home Menu ")
 
     @staticmethod
     def dump_goal() -> None:
@@ -305,11 +305,11 @@ class Application():
             Utilities.print_goals(in_progress_goals, negate_endtime=True)
             valid_ids = [i[0] for i in in_progress_goals]
             print("\n")
-            goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to dump: ")
+            goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to dump: ")
 
             while (goal_id.isalpha() or goal_id.isspace() or goal_id == '') or int(goal_id) not in valid_ids:
                 print("\033[1A\033[0J", end='')
-                goal_id = console.input("[black]Enter the [u]Goal ID[/u] of the goal to dump [Invalid Goal ID was entered]: ")
+                goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to dump [Invalid Goal ID was entered]: ")
             print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
 
             try:
@@ -321,7 +321,7 @@ class Application():
             else: 
                 console.print(f"[green][+][/green] Goal Record {goal_id} successfully deleted from database")
 
-        console.input("\n[black]Press [b]'Enter'[/b] to return to Home Menu ")
+        console.input("\n[grey]Press [b]'Enter'[/b] to return to Home Menu ")
 
     @staticmethod
     def new_comer_screen() -> None:
@@ -340,10 +340,10 @@ class Application():
 
     @staticmethod
     def process_name():
-        name = console.input("What's your [black]full[/black] name? ")
+        name = console.input("What's your [grey]full[/grey] name? ")
         while not Utilities.is_proper_alphabetical_string(name):
             print("\033[1A\033[2K", end="")
-            name = console.input("What's your [black]full[/black] name? [black][Name can only contain alphabets and space][/black] ")
+            name = console.input("What's your [grey]full[/grey] name? [grey][Name can only contain alphabets and space][/grey] ")
 
         name = name.split()
         first_name = name[0]
