@@ -61,8 +61,8 @@ class Utilities():
 class Application():
     GOAL_TYPES = ["Academic", "Sports", "Self-Oriented", "Work/Skill-Oriented", "Others"]
     RANKS      = {  1: ('Neophyte', (0, 100)), 2: ('Intermediate', (100, 300)), 
-                    3: ('Adept', (300, 650)), 4: ('Prime', (650, 1000)), 
-                    5: ('Paramount', (1000, 2**31-1))}
+                    3: ('Adept', (300, 650)), 4: ('Prime', (650, 1200)), 
+                    5: ('Paramount', (1200, 2**31-1))}
     RUNNING = True
 
     @staticmethod 
