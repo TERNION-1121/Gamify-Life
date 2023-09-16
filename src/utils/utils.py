@@ -60,9 +60,9 @@ class Utilities():
 
 class Application():
     GOAL_TYPES = ["Academic", "Sports", "Self-Oriented", "Work/Skill-Oriented", "Others"]
-    RANKS      = {  1: ('Neophyte', (0, 100)), 2: ('Intermediate', (100, 300)), 
-                    3: ('Adept', (300, 650)), 4: ('Prime', (650, 1200)), 
-                    5: ('Paramount', (1200, 2**31-1))}
+    RANKS      = {  5: ('Paramount', (1200, 2**31-1)), 4: ('Prime', (650, 1200)), 
+                    3: ('Adept', (300, 650)), 2: ('Intermediate', (100, 300)), 
+                    1: ('Neophyte', (0, 100))}
     RUNNING = True
 
     @staticmethod 
@@ -72,9 +72,9 @@ class Application():
     @staticmethod
     def check_level_update(exp: int) -> tuple:
         for rank in Application.RANKS:
-            upperLimit = Application.RANKS[rank][1][1]
-            if exp >= upperLimit:
-                return (True, rank+1)
+            lower_limit = Application.RANKS[rank][1][0]
+            if exp >= lower_limit:
+                return (True, rank)
         return (False, None)
 
     @staticmethod
