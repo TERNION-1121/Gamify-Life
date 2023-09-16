@@ -69,10 +69,27 @@ Thanks for your kind attention :)
 ## Requirements
 - Python 3.10+ is required to run the program.
 - Clone this repository, or simply download the source code
-- Navigate to the repository's location `~/Gamify-Life`
+- Navigate to the repository's location
+```
+~/Gamify-Life
+```
 - Run the following command
 ```py
 pip install -r requirements.txt
 ```
 
 > Use `pip3` instead of `pip` on Linux / MacOS
+
+<hr>
+
+Now in the same repository as before, navigate to the `src` directory.
+```
+~/Gamify-Life/src
+```
+Run the following command:
+```
+python main.py
+```
+> Use `python3` instead of `python` on Linus / MacOS
+
+Voila! It's done! Hope you'll have a great time using the program...
