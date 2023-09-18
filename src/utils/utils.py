@@ -87,10 +87,10 @@ class Application():
     @staticmethod
     def view_goal_desc() -> None:
         goals = db.get_all_goals()
-        valid_ids = [i[0] for i in goals]
+        valid_ids = [str(i[0]) for i in goals]
 
         goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to be viewed: ")
-        while (goal_id.isalpha() or goal_id.isspace() or goal_id == '') or int(goal_id) not in valid_ids:
+        while goal_id not in valid_ids:
             print("\033[1A\033[0J", end='')
             goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to be viewed [Invalid Goal ID was entered]: ")
         print("\033[1A\033[0J", end='')
@@ -267,11 +267,11 @@ class Application():
             console.print("Looks like there are no goals in progress :[\n[i]Why not begin with one?")
         else:
             Utilities.print_goals(in_progress_goals, negate_endtime=True)
-            valid_ids = [i[0] for i in in_progress_goals]
+            valid_ids = [str(i[0]) for i in in_progress_goals]
             
             print(end="\n\n")
             goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to set complete: ")
-            while (goal_id.isalpha() or goal_id.isspace() or goal_id == '') or int(goal_id) not in valid_ids:
+            while goal_id not in valid_ids:
                 print("\033[1A\033[0J", end='')
                 goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to set complete [Invalid Goal ID was entered]: ")
             print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
@@ -303,11 +303,11 @@ class Application():
             console.print("Seems like there are no goals to dump!")
         else:
             Utilities.print_goals(in_progress_goals, negate_endtime=True)
-            valid_ids = [i[0] for i in in_progress_goals]
+            valid_ids = [str(i[0]) for i in in_progress_goals]
             print("\n")
             goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to dump: ")
 
-            while (goal_id.isalpha() or goal_id.isspace() or goal_id == '') or int(goal_id) not in valid_ids:
+            while goal_id not in valid_ids:
                 print("\033[1A\033[0J", end='')
                 goal_id = console.input("[grey]Enter the [u]Goal ID[/u] of the goal to dump [Invalid Goal ID was entered]: ")
             print(f"\033[{len(in_progress_goals) + 6}A\033[0J", end="")
